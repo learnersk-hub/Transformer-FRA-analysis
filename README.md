@@ -1,164 +1,231 @@
-⚡ AI-Based Intelligent FRA Diagnostic System
-🚀 Overview
+# AI-Based FRA Diagnostic System
 
-The AI-Based Intelligent Diagnostic System for Frequency Response Analysis (FRA) is an advanced platform designed to automate the analysis of transformer FRA data using machine learning, anomaly detection, and expert system logic.
+Automated **Frequency Response Analysis (FRA)** for power transformers: parsing, feature extraction, machine learning, anomaly detection, expert rules, interactive web dashboard, and PDF reports.
 
-This system eliminates the dependency on manual interpretation by experts and provides accurate, consistent, and real-time fault diagnosis with a professional interactive dashboard.
+---
 
-🎯 Problem Statement
+## Table of contents
 
-Frequency Response Analysis (FRA) is widely used to detect internal faults in power transformers such as:
+1. [Overview](#overview)
+2. [Problem and approach](#problem-and-approach)
+3. [Features](#features)
+4. [Architecture](#architecture)
+5. [Project structure](#project-structure)
+6. [Requirements](#requirements)
+7. [Installation](#installation)
+8. [Running the application](#running-the-application)
+9. [Usage](#usage)
+10. [Web routes](#web-routes)
+11. [Sample diagnostic output](#sample-diagnostic-output)
+12. [Tech stack](#tech-stack)
+13. [Roadmap](#roadmap)
+14. [Contributing](#contributing)
+15. [License](#license)
 
-Winding deformation
-Core displacement
-Insulation degradation
+---
 
-However:
+## Overview
 
-Requires expert interpretation
-Complex signal patterns
-Multi-vendor incompatible data formats
-Slow and inconsistent diagnostics
-💡 Solution
+This platform reduces reliance on manual expert interpretation of FRA sweeps by combining:
 
-This project introduces a fully automated AI-driven FRA diagnostic platform that:
+- Multi-format ingestion (CSV / Excel)
+- Signal features and statistical summaries
+- Supervised fault classification (e.g. Random Forest)
+- Unsupervised anomaly scoring (Isolation Forest)
+- Rule-based expert interpretation and maintenance-style recommendations
+- A dark-themed Flask UI with Chart.js visualizations and optional PDF export
 
-Parses multi-format FRA data
-Extracts meaningful signal features
-Applies machine learning for fault classification
-Uses anomaly detection for unseen patterns
-Integrates expert system logic for recommendations
-Visualizes results through an interactive dashboard
-Generates professional diagnostic reports
-🧠 Key Features
-🔄 Universal Data Parser
-Supports CSV and Excel FRA data
-Auto-detects format and standardizes input
-📊 Advanced Signal Analysis
-Peak detection
-Frequency band energy analysis
-Statistical signal features
-🤖 Machine Learning Model
-Fault classification using Random Forest
-Predicts:
-Healthy
-Winding deformation
-Insulation issues
-Core displacement
-🚨 Anomaly Detection
-Isolation Forest for detecting unknown faults
-Identifies abnormal FRA patterns
-🧠 Expert System
-Rule-based interpretation of signals
-Provides:
-Fault type
-Severity level
-Maintenance recommendation
-📈 Interactive Visualization Dashboard
-FRA curve (log scale)
-Comparison graph (healthy vs faulty)
-Difference plot (deviation analysis)
-Feature insights panel
-Confidence & severity indicators
-🌙 Modern Dark-Themed UI
-Professional dashboard design
-Interactive graphs (Plotly/Chart.js)
-Smooth animations & clean layout
-📄 Report Generation
-Auto-generated PDF diagnostic report
-Includes graphs, results, and recommendations
-🏗️ System Architecture
-FRA Data Input
+---
+
+## Problem and approach
+
+**Context:** FRA is used to detect faults such as winding deformation, core displacement, and insulation issues. Interpretation is often slow, format-dependent, and inconsistent.
+
+**Approach:** A single pipeline normalizes inputs, extracts features, runs ML + anomaly models, merges results with expert rules, and presents a unified diagnosis with plots and a downloadable report.
+
+---
+
+## Features
+
+| Area | Description |
+|------|-------------|
+| **Parsing** | CSV and Excel; frequency / magnitude columns auto-detected where possible |
+| **Features** | Peaks, band energies, statistics |
+| **ML** | Fault classification with confidence |
+| **Anomaly** | Isolation Forest–style scoring for unusual patterns |
+| **Expert system** | Rules for fault type, severity, recommendations |
+| **Visualization** | Log-scale FRA, comparison, difference; interactive charts + Matplotlib exports |
+| **UI** | Responsive dashboard (upload → analyze → results → report) |
+| **Reports** | PDF generation (ReportLab) when the pipeline completes successfully |
+
+---
+
+## Architecture
+
+```
+FRA file upload
       ↓
-Universal Parser
+Parse & preprocess
       ↓
-Feature Extraction
+Feature extraction
       ↓
-ML Model + Anomaly Detection
+ML classification + anomaly detection
       ↓
-Expert System
+Expert rules & unified diagnosis
       ↓
-Visualization Dashboard
+Plots (static + chart data) + optional PDF
       ↓
-PDF Report
-📂 Project Structure
-FRA_AI_Data/
-│
-├── app/                    # Flask application
-├── src/
-│   ├── parser/             # Data parsing modules
-│   ├── features/           # Feature extraction
-│   ├── models/             # ML & anomaly detection
-│   ├── expert/             # Rule-based system
-│   ├── utils/              # Plotting & report generation
-│
-├── static/                 # CSS, JS
-├── templates/              # HTML files
-├── data/                   # FRA datasets
-├── requirements.txt
-└── README.md
-⚙️ Installation & Setup
-1️⃣ Clone Repository
-git clone <your-repo-link>
-cd FRA_AI_Data
-2️⃣ Create Virtual Environment
+Web UI (results page)
+```
+
+---
+
+## Project structure
+
+Repository root contains this README. Application code lives under **`FRA_AI_Data/`**:
+
+```
+FRA_Datas/
+├── README.md                 ← This file
+└── FRA_AI_Data/
+    ├── app/
+    │   ├── app.py            # Flask app, routes, upload/report paths
+    │   ├── static/           # css/, js/, images/, plots/
+    │   └── templates/        # landing, index (upload), result, history, about
+    ├── src/
+    │   ├── parser/           # CSV/Excel/universal parsing
+    │   ├── features/         # Feature extraction & FRA signal features
+    │   ├── models/           # Training, prediction, anomaly
+    │   ├── expert/           # Rule engine
+    │   ├── utils/            # Plotting, PDF reports
+    │   ├── pipeline.py       # End-to-end process_fra
+    │   └── analyzer.py       # DataFrame-level analysis helper
+    ├── data/                 # Uploads & datasets (see data/raw for reference e.g. fra_healthy.csv)
+    ├── reports/              # Generated PDFs
+    ├── requirements.txt
+    ├── main.py
+    └── notebooks/            # Experiments (optional)
+```
+
+---
+
+## Requirements
+
+- **Python** 3.10+ recommended  
+- Dependencies are listed in **`FRA_AI_Data/requirements.txt`** (Flask, pandas, NumPy, SciPy, matplotlib, scikit-learn, openpyxl, ReportLab, joblib).
+
+---
+
+## Installation
+
+```bash
+git clone <your-repository-url>
+cd FRA_Datas/FRA_AI_Data
+```
+
+Create and activate a virtual environment:
+
+```bash
+# Windows (PowerShell)
 python -m venv venv
-venv\Scripts\activate   # Windows
-3️⃣ Install Dependencies
+.\venv\Scripts\Activate.ps1
+
+# macOS / Linux
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
-4️⃣ Run Application
+```
+
+---
+
+## Running the application
+
+From the **`FRA_AI_Data`** directory:
+
+```bash
 python app/app.py
-🌐 Open in Browser
-http://127.0.0.1:5000/
-🧪 Usage
-Upload FRA file (CSV/Excel)
-System processes data automatically
-View:
-FRA graphs
-Fault classification
-Confidence score
-Feature insights
-Recommendations
-Download diagnostic report
-📊 Sample Output
+```
+
+Open a browser at:
+
+**http://127.0.0.1:5000/**
+
+---
+
+## Usage
+
+1. Open **Home**, then go to **Diagnostics** (or open `/analysis` directly).
+2. Upload an FRA file (CSV or Excel).
+3. Review interactive charts, fault type, confidence, severity, features, and insights.
+4. Download the **PDF report** when generation succeeds (link on the results page).
+
+**Reference curve:** If `data/raw/fra_healthy.csv` exists, it is used as the baseline for comparison. Otherwise the pipeline falls back according to `src/pipeline.py` logic.
+
+---
+
+## Web routes
+
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/` | GET | Landing page |
+| `/analysis` | GET | Upload / diagnostics entry |
+| `/analyze` | POST | Upload file and run pipeline; returns results page |
+| `/history` | GET | History UI (CSV listing) |
+| `/about` | GET | About page |
+| `/download-report` | GET | PDF download (`?f=<filename.pdf>`, basename only) |
+
+---
+
+## Sample diagnostic output
+
+Structured result fields (illustrative) returned to the UI include:
+
+```json
 {
-  "fault": "Winding Deformation",
+  "fault": "Winding deformation",
   "confidence": 87,
   "severity": "High",
-  "anomaly_score": -0.42,
-  "recommendation": "Immediate inspection required"
+  "anomaly_score": 72.5,
+  "recommendation": "Schedule detailed inspection per utility procedure."
 }
-🚀 Future Improvements
-Real-world FRA dataset integration
-Deep learning (CNN-based signal analysis)
-Multi-file comparison
-Cloud deployment
-Transformer health monitoring dashboard
-🏆 Hackathon Value
+```
 
-This project stands out due to:
+Exact keys and types match the unified diagnosis object produced in `src/pipeline.py` and templates.
 
-Real-world industrial application
-AI + Electrical Engineering integration
-End-to-end automation
-Professional UI/UX
-Scalable architecture
-👨‍💻 Tech Stack
-Backend: Python, Flask
-ML: Scikit-learn
-Signal Processing: NumPy, SciPy
-Visualization: Matplotlib / Plotly
-Frontend: HTML, CSS, JavaScript
-Reports: ReportLab
-🤝 Contribution
+---
 
-Contributions are welcome!
-Feel free to fork, improve, and submit pull requests.
+## Tech stack
 
-📜 License
+| Layer | Technologies |
+|-------|----------------|
+| Backend | Python, Flask |
+| ML / stats | scikit-learn, NumPy, SciPy, pandas |
+| Plots | Matplotlib (exports), Chart.js (interactive UI) |
+| Reports | ReportLab |
+| Frontend | HTML, CSS, JavaScript (Jinja2 templates) |
 
-This project is for academic and research purposes.
+---
 
-💬 Final Note
+## Roadmap
 
-This project bridges the gap between traditional transformer diagnostics and modern AI-driven predictive maintenance, making FRA analysis faster, smarter, and more reliable.
+- Broader real-world FRA dataset coverage  
+- Optional deep-learning models for waveform classification  
+- Multi-file / multi-epoch comparison workflows  
+- Cloud-friendly deployment packaging  
+
+---
+
+## Contributing
+
+Contributions are welcome: fork the repository, open a branch, and submit a pull request with a clear description of changes and any new dependencies.
+
+---
+
+## License
+
+This project is intended for **academic and research** use unless otherwise stated by the repository owner.
