@@ -99,8 +99,9 @@ def analyze():
             report_name = None
             app.logger.warning("PDF generation failed: %s", ex)
 
+        chart_diff = _chart_diff(result)
         return render_template(
-            "index.html",
+            "result.html",
             status=ui_status,
             diagnosis_severity=diagnosis.get("severity", "Medium"),
             transformer_id=safe_name,
@@ -110,6 +111,7 @@ def analyze():
             frequencies=_chart_frequencies(result),
             healthy=_chart_healthy(result),
             faulty=_chart_faulty(result),
+            chart_diff=chart_diff,
             confidence=int(round(float(diagnosis.get("confidence", 0)))),
             fault_type=diagnosis.get("fault", "Unknown"),
             recommendation=diagnosis.get("recommendation", ""),
@@ -194,6 +196,15 @@ def _chart_faulty(result: dict) -> list:
         grid = np.linspace(f_min, f_max, min(600, max(50, len(f_t))))
     mag_u = np.interp(grid, f_t, m_t)
     return mag_u.tolist()
+
+
+def _chart_diff(result: dict) -> list:
+    """Pointwise test − reference magnitude (dB) on the same grid as healthy/faulty charts."""
+    h = _chart_healthy(result)
+    u = _chart_faulty(result)
+    if not h or not u or len(h) != len(u):
+        return []
+    return [float(u[i]) - float(h[i]) for i in range(len(h))]
 
 
 @app.route("/download-report")
