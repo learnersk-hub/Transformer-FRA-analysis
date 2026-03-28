@@ -1,7 +1,7 @@
 {
   "builds": [
     {
-      "src": "app/vercel_app.py",
+      "src": "FRA_AI_Data/app/vercel_app.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb"
@@ -11,11 +11,11 @@
   "routes": [
     {
       "src": "/static/(.*)",
-      "dest": "app/static/$1"
+      "dest": "FRA_AI_Data/app/static/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "app/vercel_app.py"
+      "dest": "FRA_AI_Data/app/vercel_app.py"
     }
   ]
 }

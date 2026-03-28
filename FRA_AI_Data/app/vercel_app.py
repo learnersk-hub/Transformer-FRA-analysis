@@ -20,7 +20,12 @@ from src.utils.report_generator import generate_report
 from src.parser import load_fra_data
 import numpy as np
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    template_folder="templates",
+    static_folder="static",
+    static_url_path="/static",
+)
 
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 app.config["UPLOAD_FOLDER"] = "/tmp"
